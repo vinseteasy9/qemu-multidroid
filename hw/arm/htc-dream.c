@@ -23,9 +23,8 @@ static void htc_dream_init(MachineState *machine) {
 	memory_region_init_ram(&s->ram, OBJECT(machine), "htc-dream.ram", machine->ram_size, &err);
 	if (err) exit(1);
 	memory_region_add_subregion(sysmem, 0x10000000, &s->ram);
-	cpuobj = object_new(ARM_CPU_TYPE_NAME("arm1136"));
-	s->cpu = ARM_CPU(cpuobj);
-	qdev_realize(DEVICE(cpuobj), NULL, &error_fatal);
+	s->cpu = ARM_CPU(object_new(ARM_CPU_TYPE_NAME("arm1136")));
+	object_property_add_child(OBJECT(machine), "cpu", OBJECT(s->cpu));
 }
 
 static void htc_dream_machine_class_init(ObjectClass *oc, const void *data) {
