@@ -4,6 +4,7 @@
 #include "qom/object.h"
 #include "qemu/units.h"
 #include "qapi/error.h"
+#include "system/address-spaces.h"
 
 struct HTCDreamMachineState {
 	MachineState parent;
@@ -16,8 +17,12 @@ OBJECT_DECLARE_SIMPLE_TYPE(HTCDreamMachineState, HTC_DREAM_MACHINE)
 
 static void htc_dream_init(MachineState *machine) {
 	HTCDreamMachineState *s = HTC_DREAM_MACHINE(machine);
+	MemoryRegion *sysmem = get_system_memory();
 	Object *cpuobj;
 	Error *err = NULL;
+	memory_region_init_ram(&s->ram, OBJECT(machine), "htc-dream.ram", machine->ram_size, &err);
+	if (err) exit(1);
+	memory_region_add_subregion(sysmem, 0x10000000, &s->ram);
 	cpuobj = object_new(ARM_CPU_TYPE_NAME("arm1136"));
 	s->cpu = ARM_CPU(cpuobj);
 	qdev_realize(DEVICE(cpuobj), NULL, &error_fatal);
