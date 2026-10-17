@@ -13,22 +13,22 @@ jobs:
             - uses: actions/checkout@v4
 
             - name: Prepare machine for build
-            run: |
+              run: |
                 sudo apt-get update
                 sudo apt-get install -y build-essential ninja-build pkg-config libglib2.0-dev libpixman-1-dev zlib1g-dev libgcrypt20-dev
 
             - name: Configuring build
-            run: |
+              run: |
                 mkdir build && cd build
                 ../configure --target-list=arm-softmmu --disable-werror
 
             - name: Build
-            run: |
+              run: |
                 cd build
                 make -j$(nproc)
 
             - name: Deploy
-            uses: actions/upload-artifact@v4
-            with:
-                name: qemu-system-arm
-                path: build/qemu-system-arm
+              uses: actions/upload-artifact@v4
+              with:
+                  name: qemu-system-arm
+                  path: build/qemu-system-arm
