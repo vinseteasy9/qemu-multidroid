@@ -6,6 +6,11 @@
 #include "target/arm/cpu.h"
 #include "target/arm/cpu-qom.h"
 #include "qemu/units.h"
+#include "qapi/error.h"
+#include "hw/core/loader.h"
+#include "hw/char/serial.h"
+#include "hw/char/serial-mm.h"
+#include "system/system.h"
 
 #define TYPE_HTC_DREAM_MACHINE MACHINE_TYPE_NAME("htc-dream")
 OBJECT_DECLARE_SIMPLE_TYPE(HTCDreamMachineState, HTC_DREAM_MACHINE)
@@ -17,6 +22,10 @@ struct HTCDreamMachineState {
 static void htc_dream_machine_init(MachineState *machine) {
 	CPUState *cpu = cpu_create(machine->cpu_type);
 	memory_region_add_subregion(get_system_memory(), 0x10000000, machine->ram);
+	if (machine->kernel_filename) load_image_targphys(machine->kernel_filename, 0x10000000, machine->ram_size, &error_abort);
+	serial_mm_init(get_system_memory(), 0xA9A00000, 2, 0, 115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+	serial_mm_init(get_system_memory(), 0xA9B00000, 2, 0, 115200, serial_hd(1), DEVICE_LITTLE_ENDIAN);
+	serial_mm_init(get_system_memory(), 0xA9C00000, 2, 0, 115200, serial_hd(2), DEVICE_LITTLE_ENDIAN);
 	cpu_set_pc(cpu, 0x10000000);
 }
 
